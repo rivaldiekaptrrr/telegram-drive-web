@@ -18,21 +18,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Test Build Backend
+      - name: Test Build Single Image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: .
           push: false
-          tags: telegram-drive-backend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Test Build Frontend
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          push: false
-          tags: telegram-drive-frontend:latest
+          tags: telegram-drive-web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

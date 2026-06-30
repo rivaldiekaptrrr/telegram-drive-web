@@ -2,8 +2,11 @@
 Main FastAPI Application — Entry Point Backend
 """
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 from config import settings
 from models.database import create_db_and_tables
@@ -67,3 +70,22 @@ app.include_router(settings_router.router) # /api/settings
 @app.get("/api/health", tags=["Health"])
 async def health():
     return {"status": "ok", "service": "Telegram Drive Web API"}
+
+# ─── Serve Frontend SPA ───────────────────────────────────
+# Berfungsi jika ada folder 'static' yang berisi build dari React
+if os.path.exists("static"):
+    app.mount("/assets", StaticFiles(directory="static/assets"), name="assets")
+    
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        # Jika request API yang tidak valid (404), biarkan FastAPI menangani
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+            
+        # Cek file statis lainnya (vite.svg, favicon.ico, dll)
+        path = os.path.join("static", full_path)
+        if os.path.isfile(path):
+            return FileResponse(path)
+            
+        # Fallback ke index.html untuk React Router
+        return FileResponse("static/index.html")
