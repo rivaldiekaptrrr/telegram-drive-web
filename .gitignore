@@ -12,6 +12,7 @@ __pycache__/
 
 # Databases & Sessions
 backend/db/*.db
+backend/db/settings.json
 backend/session/*.session
 backend/session/*.session-journal
 
